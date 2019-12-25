@@ -221,19 +221,12 @@ def main():
                 _, im_name = os.path.split(img_path)
                 mask_img = os.path.join(args.mask_dir, f'{im_name}')
             if args.composite_mask and mask_img is not None and os.path.isfile(mask_img):
-                width, height = 1024, 1024
-                orig_img = PIL.Image.open(img_path).convert('RGB').resize((width, height))
-                # width, height = orig_img.size
+                orig_img = PIL.Image.open(img_path).convert('RGB')
+                width, height = orig_img.size
                 imask = PIL.Image.open(mask_img).convert('L').resize((width, height))
                 imask = imask.filter(ImageFilter.GaussianBlur(args.composite_blur))
                 mask = np.array(imask)/255
                 mask = np.expand_dims(mask,axis=-1)
-                print("width:", width)
-                print("height:", height)  
-                print("orig_image:", orig_img.size)
-                print("img_array:", img_array.size)
-                print("mask*np.array(img_array):", mask*np.array(img_array).size)
-                print("(1.0-mask)*np.array(orig_img):", (1.0-mask)*np.array(orig_img).size)
                 img_array = mask*np.array(img_array) + (1.0-mask)*np.array(orig_img)
                 img_array = img_array.astype(np.uint8)
                 #img_array = np.where(mask, np.array(img_array), orig_img)
